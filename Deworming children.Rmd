@@ -1,0 +1,678 @@
+---
+title: "R markdown"
+author: "Elizabeth Josephine"
+date: "2023-07-25"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r}
+## 
+```
+
+
+```{r}
+load.libraries <- c('data.table', 'testthat', 'gridExtra', 'corrplot', 'GGally', 'ggplot2', 'e1071', 'dplyr')
+install.lib <- load.libraries[!load.libraries %in% installed.packages()]
+for(libs in install.lib) install.packages(libs, dependences = TRUE)
+sapply(load.libraries, require, character = TRUE)
+```
+
+```{r}
+#reading data
+df <- read.csv("deworming_children.csv")
+```
+
+# DATA CHECKING
+```{r}
+#data preview
+View(df)
+```
+
+```{r}
+class(df)
+```
+
+
+```{r}
+# data head preview
+head(df)
+```
+
+```{r}
+# data tail preview
+tail(df)
+```
+
+```{r}
+#column names
+colnames(df)
+```
+
+```{r}
+#checking datatypes
+sapply(df, class)
+```
+
+```{r}
+#data structure
+str(df)
+```
+
+```{r}
+#data dimension
+dim(df) # there are 1410 rows and 11 columns
+```
+
+# DATA CLEANING
+## Missing Values
+```{r}
+# checking for missing values
+sum(is.na(df)) #there are 399 missing values in the data
+```
+
+```{r}
+# dropping rows with missing values
+df1 <- na.omit(df)
+View(df1)
+df1
+```
+
+```{r}
+# printing df1
+write.csv(df1, file = "clean_deworm.csv", row.names = FALSE)
+```
+
+```{r}
+#displaying all rows from the dataset which don't contain any missing values 
+
+dim(df1) # there are 1048 rows and 11 columns
+```
+
+## Duplicates
+```{r}
+# checking for duplicates in new dataset
+duplicated_rows <- df1[duplicated(df1),]
+duplicated_rows # there are no duplicates in the data
+```
+
+```{r}
+# selecting the numerical data columns
+df2 <- df1 %>% select_if(is.numeric)
+View(df2)
+df2
+```
+
+```{r}
+#viewing the remaining columns
+colnames(df2)
+```
+## Checking for outliers
+```{r}
+# visualizing any existing outliers using a boxplot
+boxplot(df2) #there are outliers in the data. However, we will keep the outliers a s they are essential to the analysis
+```
+*#### removing outliers using z-score*
+
+remove_outliers_zscore <- function(df2, threshold) {
+  z_scores <- scale(df2)  # Calculate Z-scores for each column in the dataframe
+  outlier_rows <- apply(z_scores, 1, function(row) any(abs(row) > threshold))
+  cleaned_data <- df2[!outlier_rows, ]
+  
+  return(cleaned_data)
+}
+
+data_cleaned <- remove_outliers_zscore(df2, threshold = 3)
+****
+
+# EXPLORATORY DATA ANALYSIS
+# FEATURE ENGINEERING
+
+```{r}
+#install.packages("gapminder")
+library(gapminder)
+```
+
+```{r}
+df3<- select(df1, period, county, Total.Dewormed)
+View(df3)
+```
+
+```{r}
+df4<- df3 %>% pivot_wider(names_from = period, values_from = Total.Dewormed)
+View(df4)
+dim(df4)
+```
+
+```{r}
+# checking for missing values
+sum(is.na(df4)) #there are 399 missing values in the data
+```
+
+```{r}
+# dropping rows with missing values
+df5 <- na.omit(df4)
+View(df5)
+df5
+dim(df5)
+```
+
+```{r}
+# printing df1
+write.csv(df5, file = "clean_deworm4.csv", row.names = FALSE)
+```
+
+```{r}
+#displaying all rows from the dataset which don't contain any missing values 
+
+dim(df5) # there are 1048 rows and 11 columns
+```
+
+## Duplicates
+```{r}
+# checking for duplicates in new dataset
+duplicated_rows <- df5[duplicated(df5),]
+duplicated_rows # there are no duplicates in the data
+```
+
+## UNIVARITE ANALYSIS
+```{r}
+summary(df5)
+```
+
+```{r}
+#descriptive statistics of the numerical columns
+library(Hmisc)
+describe(df5)
+```
+
+```{r}
+# selecting the numerical data columns
+df6 <- df5 %>% select_if(is.numeric)
+View(df6)
+df6
+```
+### Univariate Graphical
+
+```{r}
+# creating a boxplot graph for the variable all the numerical variables
+boxplot(df6)
+```
+
+## BIVARIATE ANALYSIS
+### covariance
+```{r}
+# covariance of variables
+cov <- cov(df6)
+round(cov, 2)
+```
+
+### correlation
+```{r}
+# finding the correlation matrix
+library(corrplot)
+```
+
+```{r}
+coo <- cor(df6)
+round(coo, 2)
+```
+
+# implementation of the solution
+## principal component analysis
+```{r}
+df4 <- prcomp(df3)
+summary(df4)
+```
+
+```{r}
+# Calling str() to have a look at your PCA object
+#str(df4)
+```
+
+```{r}
+# creating a scatterplot
+#plot(Age, Daily_Internet_Usage, xlab="Age", ylab="Daily_Internet_Usage")
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
