@@ -10,10 +10,7 @@ The dataset contains the following variables:
 - Number of children <5 years with diarrhea (Diarrhea cases)
 - Number of children who are underweight (0-6 months, 6-23 months, 24-59 months)
 
-Your task is to:
+## Expectations:
 - Conduct exploratory data analysis
 - State an appropriate research question you would want to answer from the data
 - Carry out appropriate data analysis to address the question you have stated above
-- NB: The task should be carried out as an RMarkdown 
-
-Tips: The rating of the task will be informed by the extent of your exploratory data analysis, use of graphics and maps, and insights from your analytical approaches.
