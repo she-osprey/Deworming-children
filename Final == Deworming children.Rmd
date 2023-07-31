@@ -1,0 +1,261 @@
+---
+title: "R markdown"
+author: "Elizabeth Josephine"
+date: "2023-07-25"
+output:
+  html_document:
+    df_print: paged
+---
+
+
+# DATA CHECKING
+```{r}
+# loading libraries
+library(ggplot2) #data visualization
+library(data.table) #reading data
+library(testthat) # unit testing
+library(corrplot) #visualizing the correlation matrix
+library(dplyr) # data manipulation
+library(tidyverse)# data transformation
+library(ggthemes) # Plot themes
+library(plotly) # Interactive data visualizations
+library(psych) # Will be used for correlation visualization
+library(Hmisc) # data wrangling
+```
+
+```{r}
+#reading data
+df <- read.csv("deworming_children.csv")
+```
+
+```{r}
+#data preview
+View(df)
+```
+
+```{r}
+class(df)
+```
+
+```{r}
+# data head preview
+head(df)
+```
+
+```{r}
+# data tail preview
+tail(df)
+```
+
+```{r}
+#column names
+colnames(df)
+```
+
+```{r}
+#checking datatypes
+sapply(df, class)
+```
+
+```{r}
+#data structure
+str(df)
+```
+
+```{r}
+#data dimension
+dim(df) # there are 1410 rows and 11 columns
+```
+
+## DATA CLEANING
+### Missing Values
+```{r}
+# checking for missing values
+sum(is.na(df)) #there are 399 missing values in the data
+```
+
+```{r}
+# dropping rows with missing values
+df1 <- na.omit(df)
+View(df1)
+df1
+```
+
+```{r}
+# printing df1
+write.csv(df1, file = "clean_deworm.csv", row.names = FALSE)
+```
+
+```{r}
+#displaying all rows from the dataset which don't contain any missing values 
+
+dim(df1) # there are 1048 rows and 11 columns
+```
+
+### Duplicates
+```{r}
+# checking for duplicates in new dataset
+duplicated_rows <- df1[duplicated(df1),]
+duplicated_rows # there are no duplicates in the data
+```
+
+```{r}
+# filtering the period for jan-23
+
+df1_p = df1 %>%
+  filter(period == 'Jan-23')
+head(df1_p)
+```
+
+
+###OTHERS
+```{r}
+# selecting the numerical data columns
+df2 <- df1 %>% select_if(is.numeric)
+View(df2)
+df2
+```
+
+```{r}
+#viewing the remaining columns
+colnames(df2)
+```
+### Checking for outliers
+```{r}
+# visualizing any existing outliers using a boxplot
+boxplot(df2) #there are outliers in the data. However, we will keep the outliers a s they are essential to the analysis
+```
+
+# EXPLORATORY DATA ANALYSIS
+## Feature engineering
+```{r}
+# changing the numeric column to categorical
+df1$period<-as.factor(df1$period)
+levels(df1$period)
+```
+
+```{r}
+#selecting the columns for analysis
+df3<- select(df1, period, county, Total.Dewormed)
+View(df3)
+```
+
+```{r}
+#summarizing  the data by county to check the number of entries
+df3_1 <- df3%>%
+  select(county)%>%
+  group_by(county)%>%
+  dplyr::summarise(freq=n())
+View(df3_1)
+head(df3_1)
+```
+
+```{r}
+# transposing the selected dataset for analysis
+df4<- df3 %>% pivot_wider(names_from = period, values_from = Total.Dewormed)
+View(df4)
+dim(df4) # the transposed dataframe has 44 rows and 31 columns
+```
+
+```{r}
+# checking for missing values
+sum(is.na(df4)) #there are 272 missing values in the data
+```
+
+```{r}
+# dropping rows with missing values
+df5 <- na.omit(df4)
+View(df5)
+dim(df5) # the transposed dataframe has 20 rows and 31 columns
+```
+
+```{r}
+# printing df1
+write.csv(df5, file = "clean_deworm1.csv", row.names = FALSE)
+```
+
+```{r}
+# checking for duplicates in new dataset
+duplicated_rows <- df5[duplicated(df5),]
+duplicated_rows # there are no duplicates in the data
+```
+
+## UNIVARITE ANALYSIS
+```{r}
+summary(df5)
+```
+
+```{r}
+#descriptive statistics of the numerical columns
+describe(df5)
+```
+
+```{r}
+# selecting the numerical data columns
+df6 <- df5 %>% select_if(is.numeric)
+View(df6)
+df6
+```
+
+```{r}
+# creating a boxplot graph for the variable all the numerical variables
+boxplot(df6)
+```
+
+## Univariate Graphical
+```{r}
+# changing the numeric column to categorical
+df1$period<-as.factor(df1$period)
+levels(df1$period)
+```
+
+```{r}
+#plotting total dewormed children against children with acute malnutrition
+x<-ggplot(data=df1,aes(x=Total.Dewormed,y=Acute.Malnutrition)) + geom_point(color="blue", size=2)
+x
+```
+
+```{r}
+#Color and Size mapping
+x+geom_point(aes(color='yellow'))
+x+geom_point(aes(size=diarrhoea.cases))
+```
+
+```{r}
+#plotting acute manutition
+ggplot(data=df1,aes(x=Acute.Malnutrition))+
+  geom_histogram(binwidth=10,color='blue',fill='green')
+```
+
+## BIVARIATE ANALYSIS
+### covariance
+```{r}
+# covariance of variables
+cov <- cov(df6)
+round(cov, 2)
+```
+
+### correlation
+```{r}
+# finding the correlation matrix
+coo <- cor(df6)
+cor1 <- round(coo, 2)
+cor1
+```
+
+```{r}
+# Create corrplot
+corrplot(cor1, diag = FALSE, method="color", order="FPC", tl.srt = 90)
+```
+
+# implementation of the solution
+## principal component analysis
+```{r}
+df7 <- prcomp(df6)
+summary(df7)
+```
+
+```{r}
+# Calling str() to have a look at your PCA object
+str(df7)
+```
